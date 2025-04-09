@@ -19,8 +19,6 @@
 
   <ItemGroup>
     <Folder Include="Startup\" />
-    <Folder Include="Services\" />
-    <Folder Include="Repositorys\" />
   </ItemGroup>
 
 </Project>

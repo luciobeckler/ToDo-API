@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ToDo_API.Data;
+using ToDo_API.Repositorys.Groups;
+using ToDo_API.Services.Groups;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,10 @@ builder.Services.AddSwaggerGen();
 // Register DbContext
 builder.Services.AddDbContext<ToDoDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DevConnection")));
+
+// Register Dependencies
+builder.Services.AddScoped<IGroupsService, GroupsService>();
+builder.Services.AddScoped<IGroupsRepository, GroupsRepository>();
 
 var app = builder.Build();
 
