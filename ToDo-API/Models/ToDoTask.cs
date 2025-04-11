@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ToDo_API.Models
 {
@@ -17,6 +18,7 @@ namespace ToDo_API.Models
 
 
         public int? GroupId { get; set; }
+        [JsonIgnore]
         public Group? Group { get; set; }
     }
 }
