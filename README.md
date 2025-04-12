@@ -1,9 +1,7 @@
 
 # ToDo-API
 
-API desenvolvida em ASP.NET Core para gerenciamento de tarefas (to-do list).
-
-
+API desenvolvida em ASP.NET Core utilizando .NET 8 para gerenciamento de tarefas (to-do list).
 
 ## Modelo de dados
 ![image](https://github.com/user-attachments/assets/c764af3f-ed84-4385-8640-cdbc22a1eb02)
