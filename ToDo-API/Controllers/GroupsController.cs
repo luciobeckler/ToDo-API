@@ -37,13 +37,24 @@ namespace ToDo_API.Controllers
         [HttpPost]
         public async Task<ActionResult<Models.Group>> Create(GroupDTO groupDTO)
         {
-            var group = new Models.Group()
+            try
             {
-                Title = groupDTO.Title,
-            };
+                var group = new Models.Group()
+                {
+                    Title = groupDTO.Title,
+                };
 
-            await _groupsService.AddAsync(group);
-            return Ok(group);
+                await _groupsService.AddAsync(group);
+                return Ok(group);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("update")]
@@ -62,6 +73,10 @@ namespace ToDo_API.Controllers
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
             }
             catch (Exception ex)
             {

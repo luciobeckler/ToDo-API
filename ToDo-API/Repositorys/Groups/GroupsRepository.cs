@@ -43,5 +43,16 @@ namespace ToDo_API.Repositorys.Groups
             bool existe = await _context.Groups.AnyAsync(x => x.Id == id);
             return existe;
         }
+
+        public async Task<bool> ExistsByTitleAsync(string title)
+        {
+            bool existe = await _context.Groups.AnyAsync(x => x.Title == title);
+            return existe;
+        }
+        public async Task<Models.Group?> GetByTitleAsync(string title)
+        {
+            return await _context.Groups.FirstOrDefaultAsync(g => g.Title == title);
+        }
+
     }
 }
