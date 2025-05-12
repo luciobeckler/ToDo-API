@@ -2,12 +2,27 @@
 {
     public static class CorsConfig
     {
-        public static void ConfigureCors(this WebApplication app)
+        private const string CorsPolicyName = "AllowVercelAndLocalhost";
+
+        public static void AddCorsPolicy(this IServiceCollection services)
         {
-            app.UseCors(options =>
-                options.AllowAnyOrigin()
-                       .AllowAnyMethod()
-                       .AllowAnyHeader());
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: CorsPolicyName, policy =>
+                {
+                    policy.WithOrigins(
+                            "http://localhost:4200",
+                            "https://seu-projeto.vercel.app" 
+                        )
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+        }
+
+        public static void UseConfiguredCors(this WebApplication app)
+        {
+            app.UseCors(CorsPolicyName);
         }
     }
 }
