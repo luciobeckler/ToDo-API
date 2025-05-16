@@ -1,22 +1,25 @@
-using Microsoft.EntityFrameworkCore;
 using ToDo_API.Startup;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddCorsPolicy();
-builder.Services.RegisterDbContext(builder.Configuration, builder.Environment);
+// 1) Registra serviços
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.RegisterServices();
+
+builder.Services.RegisterDbContext(builder.Configuration, builder.Environment);
+builder.RegisterServices();
 
 var app = builder.Build();
 
-// Configura middleware
-app.UseConfiguredCors();
+// 2) Pipeline de middlewares — esta ordem é obrigatória
 app.UseSwaggerDocs();
-
 app.UseHttpsRedirection();
+
+app.UseRouting();
+
+app.UseCors("FrontendPolicy"); 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
