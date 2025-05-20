@@ -2,10 +2,10 @@
 {
     public interface IGroupsService
     {
-        Task<IEnumerable<Models.Group>> GetAllAsync();
-        Task<Models.Group?> GetByIdAsync(int id);
+        Task<IEnumerable<Models.Group>> GetAllAsync(string userId);
+        Task<Models.Group?> GetById(int id, string userId);
         Task AddAsync(Models.Group group);
         Task UpdateAsync(Models.Group group);
-        Task DeleteAsync(int id);
+        Task DeleteByIdAsync(int id, string userId);
     }
 }

@@ -1,4 +1,5 @@
-﻿using ToDo_API.Repositorys.Groups;
+﻿using System.Security.Claims;
+using ToDo_API.Repositorys.Groups;
 using ToDo_API.Repositorys.ToDoTasks;
 
 namespace ToDo_API.Services.Groups
@@ -11,42 +12,53 @@ namespace ToDo_API.Services.Groups
         {
             _groupsRepository = groupsRepository;
         }
+        public async Task<IEnumerable<Models.Group>> GetAllAsync(string userId)
+        {
+            var groups = await _groupsRepository.GetAllAsync();
+
+            var userGroups = groups.Where(g => g.UserId == userId);
+            return userGroups;
+        }
 
         public async Task AddAsync(Models.Group group)
         {
-            if (await _groupsRepository.ExistsByTitleAsync(group.Title))
-                throw new InvalidOperationException("A group with this name already exists.");
-
             await _groupsRepository.AddAsync(group);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteByIdAsync(int id, string userId)
         {
             if (!await _groupsRepository.ExistsAsync(id))
                 throw new KeyNotFoundException("Group not found.");
 
+            var group = await _groupsRepository.GetByIdAsync(id);
+            bool groupBelongsToUser = group?.UserId == userId;
+            
+            if (!groupBelongsToUser)
+                throw new InvalidOperationException("You do not have permission to delete this group.");
+
             await _groupsRepository.DeleteAsync(id);
         }
 
-        public async Task<IEnumerable<Models.Group>> GetAllAsync()
+        public async Task<Models.Group?> GetById(int id, string userId)
         {
-            return await _groupsRepository.GetAllAsync();
-        }
+            var group = await _groupsRepository.GetByIdAsync(id);
 
-        public async Task<Models.Group?> GetByIdAsync(int id)
-        {
-            return await _groupsRepository.GetByIdAsync(id);
+            bool groupBelongsToUser = group?.UserId == userId;
+
+            if (!groupBelongsToUser)
+                throw new InvalidOperationException("You do not have permission to access this group.");
+
+            return group;
         }
 
         public async Task UpdateAsync(Models.Group group)
         {
             if (!await _groupsRepository.ExistsAsync(group.Id))
-                throw new KeyNotFoundException("Group not found");
+                throw new KeyNotFoundException("Group not found.");
 
-            // Verifica se já existe outro grupo com o mesmo título
-            var existingGroupWithSameTitle = await _groupsRepository.GetByTitleAsync(group.Title);
-            if (existingGroupWithSameTitle != null && existingGroupWithSameTitle.Id != group.Id)
-                throw new InvalidOperationException("A group with this name already exists.");
+            var existingGroup = await _groupsRepository.GetByIdAsync(group.Id);
+            if (existingGroup == null || existingGroup.UserId != group.UserId)
+                throw new InvalidOperationException("Você não tem permissão para acessar este grupo.");
 
             await _groupsRepository.UpdateAsync(group);
         }

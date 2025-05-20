@@ -8,8 +8,5 @@
         Task UpdateAsync(Models.Group group);
         Task DeleteAsync(int id);
         Task<bool> ExistsAsync(int id);
-        Task<bool> ExistsByTitleAsync(string title);
-        Task<Models.Group?> GetByTitleAsync(string title);
-
     }
 }

@@ -12,11 +12,15 @@ namespace ToDo_API.Repositorys.Groups
         }
         public async Task<List<Models.Group>> GetAllAsync()
         {
-            return await _context.Groups.Include(x => x.Tasks).ToListAsync();
+            return await _context.Groups
+                .Include(x => x.Tasks)
+                .ToListAsync();
         }
-        public async Task<Models.Group?> GetByIdAsync(int id)
+        public async Task<Models.Group?> GetByIdAsync(int groupId)
         {
-            return await _context.Groups.Include(x => x.Tasks).FirstOrDefaultAsync(t => t.Id == id);
+            return await _context.Groups
+                .Include(x => x.Tasks)
+                .FirstOrDefaultAsync(t => t.Id == groupId);
         }
         public async Task AddAsync(Models.Group group)
         {
@@ -43,16 +47,5 @@ namespace ToDo_API.Repositorys.Groups
             bool existe = await _context.Groups.AnyAsync(x => x.Id == id);
             return existe;
         }
-
-        public async Task<bool> ExistsByTitleAsync(string title)
-        {
-            bool existe = await _context.Groups.AnyAsync(x => x.Title == title);
-            return existe;
-        }
-        public async Task<Models.Group?> GetByTitleAsync(string title)
-        {
-            return await _context.Groups.FirstOrDefaultAsync(g => g.Title == title);
-        }
-
     }
 }

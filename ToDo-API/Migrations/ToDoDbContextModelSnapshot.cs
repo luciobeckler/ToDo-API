@@ -232,7 +232,13 @@ namespace ToDo_API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Groups");
                 });
@@ -327,6 +333,17 @@ namespace ToDo_API.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ToDo_API.Models.Group", b =>
+                {
+                    b.HasOne("ToDo_API.Models.ApplicationUser", "User")
+                        .WithMany("Groups")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ToDo_API.Models.ToDoTask", b =>
                 {
                     b.HasOne("ToDo_API.Models.Group", "Group")
@@ -334,6 +351,11 @@ namespace ToDo_API.Migrations
                         .HasForeignKey("GroupId");
 
                     b.Navigation("Group");
+                });
+
+            modelBuilder.Entity("ToDo_API.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("Groups");
                 });
 
             modelBuilder.Entity("ToDo_API.Models.Group", b =>

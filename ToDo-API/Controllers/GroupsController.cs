@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using ToDo_API.Dtos;
 using ToDo_API.Services.Groups;
 
@@ -17,35 +18,52 @@ namespace ToDo_API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Models.Group>>> GetAll()
+        public async Task<ActionResult<IEnumerable<Models.Group>>> GetAllAsync()
         {
-            var groups = await _groupsService.GetAllAsync();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if(userId == null)
+                return Unauthorized("Usuário não autenticado.");
+
+            var groups = await _groupsService.GetAllAsync(userId);
+
             return Ok(groups);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Models.Group>> GetById(int id)
         {
-            var group = await _groupsService.GetByIdAsync(id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrWhiteSpace(userId))
+                return Unauthorized("Usuário não autenticado.");
+
+            var group = await _groupsService.GetById(id, userId);
+
             if (group == null)
-            {
-                return NotFound("Group not found");
-            }
+                return NotFound("Grupo não encontrado.");
+
             return Ok(group);
         }
 
         [HttpPost]
         public async Task<ActionResult<Models.Group>> Create(GroupDTO groupDTO)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+                return Unauthorized("Usuário não autenticado.");
+
             try
             {
                 var group = new Models.Group()
                 {
                     Title = groupDTO.Title,
+                    UserId = userId
                 };
 
                 await _groupsService.AddAsync(group);
-                return Ok(group);
+                return Created();
             }
             catch (InvalidOperationException ex)
             {
@@ -60,13 +78,17 @@ namespace ToDo_API.Controllers
         [HttpPut("update")]
         public async Task<ActionResult> Update(int id, GroupDTO groupDTO)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+                return Unauthorized("Usuário não autenticado.");
+
             try
             {
-                var group = new Models.Group()
-                {
-                    Id = id,
-                    Title = groupDTO.Title,
-                };
+                var group = await _groupsService.GetById(id, userId);
+
+                group.Title = groupDTO.Title;
+
                 await _groupsService.UpdateAsync(group);
                 return NoContent();
             }
@@ -87,9 +109,14 @@ namespace ToDo_API.Controllers
         [HttpDelete]
         public async Task<ActionResult> Delete(int id)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+                return Unauthorized("Usuário não autenticado.");
+
             try
             {
-                await _groupsService.DeleteAsync(id);
+                await _groupsService.DeleteByIdAsync(id, userId);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)
